@@ -83,8 +83,6 @@ const useAdminDatabase = (sessionId) => {
           .select();
 
         if (error) throw error;
-
-        setMessages((prev) => [...prev, newMessage]);
       } catch (error) {
         console.error("Error sending message:", error);
       } finally {
