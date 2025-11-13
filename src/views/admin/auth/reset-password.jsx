@@ -19,17 +19,29 @@ const ResetPassword = () => {
 
   // Check if user is in password recovery mode
   useEffect(() => {
-    const checkRecoveryMode = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+    let ignore = false;
 
-      if (!user) {
-        navigate("/admin/live/login");
-      }
+    async function checkRecovery() {
+      // Wait for Supabase to process URL token
+      const sessionRes = await supabase.auth.getSession();
+
+      if (ignore) return;
+
+      const session = sessionRes.data.session;
+
+      // If session exists, user is in recovery mode
+      if (session && session.user) return;
+
+      // No valid session and no recovery token
+      navigate("/admin/live/login");
+    }
+
+    // Delay to allow Supabase to process the token
+    setTimeout(checkRecovery, 300);
+
+    return () => {
+      ignore = true;
     };
-
-    checkRecoveryMode();
   }, [navigate]);
 
   const handleChange = (e) => {
