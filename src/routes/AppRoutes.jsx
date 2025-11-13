@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import ChatWidget from "../components/ChatWidget";
 import AuthLayout from "../layout/AuthLayout";
 import MainLayout from "../layout/MainLayout";
-import Login from "../views/admin/auth/login";
+import Login from "../views/admin/auth/Login";
 import Signup from "../views/admin/auth/signup";
 import ForgotPassword from "../views/admin/auth/forgot-password";
 import ResetPassword from "../views/admin/auth/reset-password";
