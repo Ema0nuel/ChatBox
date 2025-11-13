@@ -8,22 +8,45 @@ export function useAuth() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    let ignore = false;
+
+    async function loadSession() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (ignore) return;
+
       setUser(session?.user ?? null);
       setLoading(false);
-    });
+    }
 
-    // Listen for auth changes
+    loadSession();
+
+    // Listen for auth changes including PASSWORD_RECOVERY
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (ignore) return;
+
+      // Supabase recovery event
+      if (event === "PASSWORD_RECOVERY") {
+        // User is in reset-password flow
+        navigate("/admin/live/reset-password");
+        setUser(session?.user ?? null);
+        setLoading(false);
+        return;
+      }
+
+      // Regular auth updates
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => {
+      ignore = true;
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
 
   const checkAuth = () => {
     if (!user && !loading) {
